@@ -2054,6 +2054,27 @@ func (f *Fpdf) Cellf(w, h float64, fmtStr string, args ...interface{}) {
 	f.CellFormat(w, h, sprintf(fmtStr, args...), "", 0, "L", false, 0, "")
 }
 
+func (f *Fpdf) GetWidth(txt []byte) float64 {
+	cw := &f.currentFont.Cw
+	s := bytes.Replace(txt, []byte("\r"), []byte{}, -1)
+	nb := len(s)
+	for nb > 0 && s[nb-1] == '\n' {
+		nb--
+	}
+	s = s[0:nb]
+	i := 0
+	l := float64(0)
+
+	for i < nb {
+		c := s[i]
+		l += float64(cw[c])
+		i++
+	}
+
+	return l/1000*f.fontSize + 2*f.cMargin
+
+}
+
 // SplitLines splits text into several lines using the current font. Each line
 // has its length limited to a maximum width given by w. This function can be
 // used to determine the total height of wrapped text for vertical placement
